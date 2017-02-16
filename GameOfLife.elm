@@ -1,7 +1,7 @@
 import Html exposing (Html, div, span, table, tr, td, button, text)
 import Html.Attributes exposing (..)
 import Html.Events exposing (onClick)
-import Time exposing (Time, second)
+import Time exposing (Time, millisecond)
 
 main : Program Never Model Msg
 main =
@@ -12,6 +12,18 @@ main =
     , subscriptions = subscriptions
     }
 
+
+grid_width: Int
+grid_width = 100
+
+grid_height: Int
+grid_height = 60
+
+frequency: Float
+frequency = 100 * millisecond
+
+cell_size: String
+cell_size = "5px"
 
 -- MODEL
 
@@ -30,7 +42,7 @@ type alias Model =
 -- TODO-4: Add random true elements
 init : (Model, Cmd Msg)
 init =
-  ( { matrix=List.repeat 20 (List.repeat 20 False)
+  ( { matrix=List.repeat grid_height (List.repeat grid_width False)
     , playing=False
     }
   , Cmd.none
@@ -91,11 +103,11 @@ update msg model =
 
             shift_down: Matrix Int -> Matrix Int
             shift_down matrix =
-              List.append [List.repeat 20 0] (List.take 19 matrix)
+              List.append [List.repeat grid_width 0] (List.take (grid_height - 1) matrix)
 
             shift_up: Matrix Int -> Matrix Int
             shift_up matrix =
-              List.append (List.drop 1 matrix) [List.repeat 20 0]
+              List.append (List.drop 1 matrix) [List.repeat grid_width 0]
 
             shift_row_left: List Int -> List Int
             shift_row_left row =
@@ -103,7 +115,7 @@ update msg model =
 
             shift_row_right: List Int -> List Int
             shift_row_right row =
-              0 :: (List.take 19 row)
+              0 :: (List.take (grid_width - 1) row)
 
             shift_left: Matrix Int -> Matrix Int
             shift_left matrix =
@@ -186,7 +198,7 @@ update msg model =
 
 subscriptions: Model -> Sub Msg
 subscriptions model =
-  Time.every second Tick
+  Time.every frequency Tick
 
 
 -- VIEW
@@ -198,9 +210,9 @@ view model =
   let
     cell: Int -> Int -> Bool -> Html Msg
     cell x y is_alive =
-      td [ style [ ("background-color", if is_alive then "green" else "red")
-                  , ("width", "15px")
-                  , ("height", "15px")
+      td [ style [ ("background-color", if is_alive then "green" else "#DDD")
+                  , ("width", cell_size)
+                  , ("height", cell_size)
                   ]
           , onClick (Set x y (not is_alive))
           ] []
